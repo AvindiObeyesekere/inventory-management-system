@@ -1,5 +1,14 @@
 const USERS_KEY = 'ims_users';
 const CURRENT_USER_KEY = 'ims_current_user';
+const PRODUCTS_KEY = 'ims_products';
+
+export interface StoredProduct {
+  productName: string;
+  productId: string;
+  category: string;
+  price: number;
+  stockQuantity: number;
+}
 
 export const storageUtil = {
   getAllUsers: () => {
@@ -37,5 +46,18 @@ export const storageUtil = {
 
   clearCurrentUser: () => {
     localStorage.removeItem(CURRENT_USER_KEY);
+  },
+
+  getAllProducts: (): StoredProduct[] => {
+    try {
+      const products = localStorage.getItem(PRODUCTS_KEY);
+      return products ? JSON.parse(products) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveProducts: (products: StoredProduct[]) => {
+    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
   },
 };
