@@ -1,7 +1,16 @@
 import { useAuth } from '@/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Package, PackagePlus, PackageMinus, LayoutDashboard, TrendingUp, Boxes } from 'lucide-react';
 import { storageUtil } from '@/utils/localStorage';
+import companyLogo from '@/assets/logo.png';
+
+const navTabs = [
+  { label: 'Home', path: '/dashboard' },
+  { label: 'Company', path: '/company' },
+  { label: 'About Us', path: '/about' },
+  { label: 'Contact Us', path: '/contact' },
+  { label: 'Help', path: '/help' },
+];
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -63,25 +72,38 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="app-page">
-      <nav className="app-panel">
+      <nav className="app-panel relative overflow-visible">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            {/* <div className="flex items-center">
-              <h1 className="text-2xl font-bold app-heading">Inventory Management System</h1>
-            </div> */}
-            <div className="flex items-center space-x-4">
-              <span className="text-sm app-label">
-                Welcome, {user?.firstName} {user?.lastName}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"
-              >
-                Logout
-              </button>
+          <div className="flex items-center justify-between h-16 gap-4">
+            {/* Left - spacer */}
+            <div className="w-8 flex-shrink-0" />
+
+            {/* Center - nav tabs */}
+            <div className="flex flex-1 items-center justify-center gap-2">
+              {navTabs.map((tab) => (
+                <Link
+                  key={tab.path}
+                  to={tab.path}
+                  className="px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap app-label transition-all duration-200 hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white dark:hover:from-blue-800 dark:hover:to-purple-900"
+                >
+                  {tab.label}
+                </Link>
+              ))}
             </div>
+
+            {/* Right - empty spacer, logo sits here via absolute positioning */}
+            <div className="w-32 flex-shrink-0" />
           </div>
         </div>
+
+        {/* Logo - pinned to top-right corner, independent of navbar height */}
+        {/* Logo - pinned to top-right corner, independent of navbar height */}
+        <img
+          src={companyLogo}
+          alt="Company Logo"
+          style={{ height: '140px', width: '200px' }}
+          className="absolute top-1/2 right-6 -translate-y-1/2 object-contain"
+        />
       </nav>
 
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">

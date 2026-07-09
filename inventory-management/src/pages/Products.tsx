@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { PackagePlus, Pencil, Trash2, X } from 'lucide-react';
+import { PackagePlus, Pencil, Trash2, X, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/Pagination';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
@@ -52,12 +52,21 @@ export const Products: React.FC = () => {
   const [products, setProducts] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
   const [categories] = useState<StoredCategory[]>(() => storageUtil.getAllCategories());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [editingProduct, setEditingProduct] = useState<StoredProduct | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const filteredProducts =
+  const categoryFilteredProducts =
     selectedCategory === 'all'
       ? products
       : products.filter((product) => product.category === selectedCategory);
+
+  const filteredProducts = sortOrder
+    ? [...categoryFilteredProducts].sort((a, b) =>
+      sortOrder === 'asc'
+        ? a.productName.localeCompare(b.productName)
+        : b.productName.localeCompare(a.productName),
+    )
+    : categoryFilteredProducts;
   const {
     paginatedData: paginatedProducts,
     currentPage, totalPages, goToNextPage, goToPreviousPage, goToPage, hasNextPage, hasPreviousPage,
@@ -89,6 +98,10 @@ export const Products: React.FC = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
     navigate('/products');
+  };
+
+  const toggleSortOrder = () => {
+  setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
   const openEditModal = (product: StoredProduct) => {
@@ -160,6 +173,20 @@ export const Products: React.FC = () => {
           <div className="flex flex-col gap-3 border-b app-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold app-heading">Product List</h2>
             <div className="flex items-center gap-3">
+              <span className="text-sm font-medium app-label whitespace-nowrap">
+                {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+              </span>
+
+              <button
+                type="button"
+                onClick={toggleSortOrder}
+                title={sortOrder === 'asc' ? 'Sorted A-Z' : sortOrder === 'desc' ? 'Sorted Z-A' : 'Sort by name'}
+                className="inline-flex items-center gap-2 rounded-md border app-border px-3 py-2 text-sm font-medium app-label transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                {sortOrder === 'desc' ? <ArrowDownAZ className="h-4 w-4" /> : <ArrowUpAZ className="h-4 w-4" />}
+                {sortOrder === 'asc' ? 'A-Z' : sortOrder === 'desc' ? 'Z-A' : 'Sort'}
+              </button>
+
               <label htmlFor="categoryFilter" className="text-sm font-medium app-label">
                 Category
               </label>
