@@ -131,12 +131,12 @@ export const Products: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="app-page">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-            <p className="mt-1 text-sm text-gray-600">Track product details and current stock levels.</p>
+            <h1 className="text-2xl font-bold app-heading">Products</h1>
+            <p className="mt-1 text-sm app-muted">Track product details and current stock levels.</p>
           </div>
           <button
             onClick={openAddModal}
@@ -147,18 +147,18 @@ export const Products: React.FC = () => {
           </button>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-lg bg-white shadow">
-          <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Product List</h2>
+        <div className="mt-6 overflow-hidden app-card">
+          <div className="flex flex-col gap-3 border-b app-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold app-heading">Product List</h2>
             <div className="flex items-center gap-3">
-              <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700">
+              <label htmlFor="categoryFilter" className="text-sm font-medium app-label">
                 Category
               </label>
               <select
                 id="categoryFilter"
                 value={selectedCategory}
                 onChange={(event) => setSelectedCategory(event.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="app-field"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
@@ -170,35 +170,35 @@ export const Products: React.FC = () => {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+              <thead className="app-table-head">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Stock Quantity</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Metric Value</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">InStock Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">Actions</th>
+                  <th className="app-th">Product ID</th>
+                  <th className="app-th">Product Name</th>
+                  <th className="app-th">Category</th>
+                  <th className="app-th">Price</th>
+                  <th className="app-th">Stock Quantity</th>
+                  <th className="app-th">Metric Value</th>
+                  <th className="app-th">InStock Status</th>
+                  <th className="app-th text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="app-table-body">
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
+                    <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                       {products.length === 0 ? 'No products added yet.' : 'No products match this category.'}
                     </td>
                   </tr>
                 ) : (
                   filteredProducts.map((product) => (
-                    <tr key={product.productId} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{product.productId}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.productName}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.category}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.price.toFixed(2)} Rs</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.stockQuantity}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.metricValue || '-'}</td>
+                    <tr key={product.productId} className="app-row-hover">
+                      <td className="app-td-strong">{product.productId}</td>
+                      <td className="app-td">{product.productName}</td>
+                      <td className="app-td">{product.category}</td>
+                      <td className="app-td">{product.price.toFixed(2)} Rs</td>
+                      <td className="app-td">{product.stockQuantity}</td>
+                      <td className="app-td">{product.metricValue || '-'}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -240,22 +240,22 @@ export const Products: React.FC = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
-          <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
+          <div className="w-full max-w-2xl app-card shadow-xl">
+            <div className="flex items-center justify-between border-b app-border px-6 py-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold app-heading">
                   {editingProduct ? 'Update Product' : 'Add Product'}
                 </h2>
                 {editingProduct && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     {editingProduct.productId} / {editingProduct.sku}
                   </p>
                 )}
               </div>
               <button
                 onClick={closeAddModal}
-                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                 aria-label="Close add product modal"
               >
                 <X className="h-5 w-5" />
@@ -278,20 +278,20 @@ export const Products: React.FC = () => {
                       ['stockQuantity', 'Initial Stock Quantity', 'number'],
                     ].map(([name, label, type]) => (
                       <div key={name} className={name === 'stockQuantity' ? 'sm:col-span-2' : ''}>
-                        <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+                        <label htmlFor={name} className="block text-sm font-medium app-label">
                           {label}
                         </label>
                         <Field
                           id={name}
                           name={name}
                           type={type}
-                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          className="mt-1 block w-full app-field"
                         />
                         <ErrorMessage name={name} component="p" className="mt-1 text-sm text-red-600" />
                       </div>
                     ))}
                     <div>
-                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="category" className="block text-sm font-medium app-label">
                         Category
                       </label>
                       <Field
@@ -300,7 +300,7 @@ export const Products: React.FC = () => {
                         type="text"
                         list="product-category-options"
                         placeholder="Search or select category"
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                        className="mt-1 block w-full app-field"
                       />
                       <datalist id="product-category-options">
                         {categories.map((category) => (
@@ -311,11 +311,11 @@ export const Products: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+                  <div className="flex justify-end gap-3 border-t app-border pt-5">
                     <button
                       type="button"
                       onClick={closeAddModal}
-                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold app-label transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                     >
                       Cancel
                     </button>

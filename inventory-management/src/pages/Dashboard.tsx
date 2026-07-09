@@ -62,15 +62,15 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
+    <div className="app-page">
+      <nav className="app-panel">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Inventory Management System</h1>
-            </div>
+            {/* <div className="flex items-center">
+              <h1 className="text-2xl font-bold app-heading">Inventory Management System</h1>
+            </div> */}
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm app-label">
                 Welcome, {user?.firstName} {user?.lastName}
               </span>
               <button
@@ -87,31 +87,31 @@ export const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Stats Overview */}
         <div>
-          <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-medium app-heading mb-4 flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5" />
             Overview
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-sm font-medium text-gray-500">Total Products</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.totalProducts}</p>
+            <div className="app-card p-6">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Products</p>
+              <p className="mt-2 text-3xl font-bold app-heading">{stats.totalProducts}</p>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-sm font-medium text-gray-500">Total Inventory Value</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
+            <div className="app-card p-6">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Inventory Value</p>
+              <p className="mt-2 text-3xl font-bold app-heading">
                 {stats.totalInventoryValue.toLocaleString()} Rs
               </p>
             </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-sm font-medium text-gray-500">Categories</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.totalCategories}</p>
+            <div className="app-card p-6">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Categories</p>
+              <p className="mt-2 text-3xl font-bold app-heading">{stats.totalCategories}</p>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-medium app-heading mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {actions.map((action) => {
               const Icon = action.icon;

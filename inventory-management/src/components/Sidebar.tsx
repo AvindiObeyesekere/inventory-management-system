@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronLeft,
 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
@@ -35,7 +36,7 @@ export const Sidebar: React.FC = () => {
     <aside
       className={`${
         collapsed ? 'w-20' : 'w-64'
-      } min-h-screen bg-gradient-to-b from-blue-700 to-blue-900 text-white flex flex-col transition-all duration-300 ease-in-out relative`}
+      } min-h-screen bg-gradient-to-b from-blue-600 via-blue-800 to-blue-950 text-white flex flex-col transition-all duration-300 ease-in-out relative dark:from-slate-950 dark:via-blue-950 dark:to-purple-950`}
     >
       {/* Logo / App name + toggle */}
       <div className="px-4 py-6 border-b border-white/10 flex items-center justify-between">
@@ -96,7 +97,10 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Logout */}
-      <div className="px-3 py-4 border-t border-white/10">
+      <div className="space-y-2 px-3 py-4 border-t border-white/10">
+        <div className={`flex ${collapsed ? 'justify-center' : 'justify-start px-3'}`}>
+          <ThemeToggle />
+        </div>
         <button
           onClick={handleLogout}
           title={collapsed ? 'Logout' : undefined}

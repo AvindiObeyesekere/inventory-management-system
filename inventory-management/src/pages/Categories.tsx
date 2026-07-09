@@ -63,7 +63,7 @@ export const Categories: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="app-page">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         {selectedCategory ? (
           <>
@@ -77,8 +77,8 @@ export const Categories: React.FC = () => {
                   <ArrowLeft className="h-4 w-4" />
                   Back to Categories
                 </button>
-                <h1 className="text-2xl font-bold text-gray-900">{selectedCategory.name}</h1>
-                <p className="mt-1 text-sm text-gray-600">Products in this category.</p>
+                <h1 className="text-2xl font-bold app-heading">{selectedCategory.name}</h1>
+                <p className="mt-1 text-sm app-muted">Products in this category.</p>
               </div>
               <button
                 type="button"
@@ -92,16 +92,16 @@ export const Categories: React.FC = () => {
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {selectedProducts.length === 0 ? (
-                <div className="rounded-lg bg-white p-8 text-center text-sm text-gray-500 shadow sm:col-span-2 lg:col-span-4">
+                <div className="app-card p-8 text-center text-sm text-gray-500 dark:text-gray-400 sm:col-span-2 lg:col-span-4">
                   No products found in {selectedCategory.name}.
                 </div>
               ) : (
                 selectedProducts.map((product) => (
-                  <div key={product.productId} className="rounded-lg bg-white p-5 shadow">
+                  <div key={product.productId} className="app-card p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">{product.productId}</p>
-                        <h2 className="mt-2 text-lg font-semibold text-gray-900">{product.productName}</h2>
+                        <h2 className="mt-2 text-lg font-semibold app-heading">{product.productName}</h2>
                       </div>
                       <span
                         className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -115,20 +115,20 @@ export const Categories: React.FC = () => {
                     </div>
                     <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <p className="text-xs text-gray-500">SKU</p>
-                        <p className="mt-1 font-medium text-gray-900">{product.sku}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">SKU</p>
+                        <p className="mt-1 font-medium app-heading">{product.sku}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Stock</p>
-                        <p className="mt-1 font-medium text-gray-900">{product.stockQuantity}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                        <p className="mt-1 font-medium app-heading">{product.stockQuantity}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Price</p>
-                        <p className="mt-1 font-medium text-gray-900">{product.price.toFixed(2)} Rs</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                        <p className="mt-1 font-medium app-heading">{product.price.toFixed(2)} Rs</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500">Metric</p>
-                        <p className="mt-1 font-medium text-gray-900">{product.metricValue || '-'}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Metric</p>
+                        <p className="mt-1 font-medium app-heading">{product.metricValue || '-'}</p>
                       </div>
                     </div>
                   </div>
@@ -140,8 +140,8 @@ export const Categories: React.FC = () => {
           <>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-                <p className="mt-1 text-sm text-gray-600">Organize products into reusable inventory groups.</p>
+                <h1 className="text-2xl font-bold app-heading">Categories</h1>
+                <p className="mt-1 text-sm app-muted">Organize products into reusable inventory groups.</p>
               </div>
               <button
                 type="button"
@@ -192,13 +192,13 @@ export const Categories: React.FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
-          <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">Add Category</h2>
+          <div className="w-full max-w-md app-card shadow-xl">
+            <div className="flex items-center justify-between border-b app-border px-6 py-4">
+              <h2 className="text-lg font-semibold app-heading">Add Category</h2>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                 aria-label="Close add category modal"
               >
                 <X className="h-5 w-5" />
@@ -213,37 +213,37 @@ export const Categories: React.FC = () => {
               {({ isSubmitting }) => (
                 <Form className="space-y-5 px-6 py-5">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="name" className="block text-sm font-medium app-label">
                       Category Name
                     </label>
                     <Field
                       id="name"
                       name="name"
                       type="text"
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      className="mt-1 block w-full app-field focus:border-purple-600 focus:ring-purple-100 dark:focus:ring-purple-900/50"
                     />
                     <ErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
                     {categoryError && <p className="mt-1 text-sm text-red-600">{categoryError}</p>}
                   </div>
 
                   <div>
-                    <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="imageUrl" className="block text-sm font-medium app-label">
                       Image Address
                     </label>
                     <Field
                       id="imageUrl"
                       name="imageUrl"
                       type="url"
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-100"
+                      className="mt-1 block w-full app-field focus:border-purple-600 focus:ring-purple-100 dark:focus:ring-purple-900/50"
                     />
                     <ErrorMessage name="imageUrl" component="p" className="mt-1 text-sm text-red-600" />
                   </div>
 
-                  <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+                  <div className="flex justify-end gap-3 border-t app-border pt-5">
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold app-label transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                     >
                       Cancel
                     </button>
