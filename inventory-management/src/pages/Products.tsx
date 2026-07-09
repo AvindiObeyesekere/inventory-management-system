@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
-import * as Yup from 'yup';
-import { PackagePlus, Pencil, Trash2, X, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
+import { PackagePlus, Pencil, Trash2, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/Pagination';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { ProductFormModal } from '@/components/modals/ProductFormModal';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
 type ProductFormValues = {
@@ -15,37 +15,6 @@ type ProductFormValues = {
   stockQuantity: string;
 };
 
-const initialValues: ProductFormValues = {
-  productName: '',
-  category: '',
-  metricValue: '',
-  price: '',
-  stockQuantity: '',
-};
-
-const productSchema = Yup.object({
-  productName: Yup.string().trim().required('Product name is required'),
-  category: Yup.string().trim().required('Category is required'),
-  metricValue: Yup.string().trim().required('Metric value is required'),
-  price: Yup.number()
-    .typeError('Price must be a number')
-    .min(0, 'Price cannot be negative')
-    .required('Price is required'),
-  stockQuantity: Yup.number()
-    .typeError('Stock quantity must be a number')
-    .integer('Stock quantity must be a whole number')
-    .min(0, 'Stock quantity cannot be negative'),
-});
-
-const getNextProductId = (products: StoredProduct[]) => {
-  const highestIdNumber = products.reduce((highest, product) => {
-    const match = product.productId.match(/^PRD-(\d+)$/);
-    return match ? Math.max(highest, Number(match[1])) : highest;
-  }, 0);
-
-  return `PRD-${String(highestIdNumber + 1).padStart(3, '0')}`;
-};
-
 export const Products: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,6 +23,7 @@ export const Products: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [editingProduct, setEditingProduct] = useState<StoredProduct | null>(null);
+  const [productToDelete, setProductToDelete] = useState<StoredProduct | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const categoryFilteredProducts =
     selectedCategory === 'all'
@@ -71,15 +41,6 @@ export const Products: React.FC = () => {
     paginatedData: paginatedProducts,
     currentPage, totalPages, goToNextPage, goToPreviousPage, goToPage, hasNextPage, hasPreviousPage,
   } = usePagination({ data: filteredProducts, itemsPerPage: 5 });
-  const formInitialValues: ProductFormValues = editingProduct
-    ? {
-        productName: editingProduct.productName,
-        category: editingProduct.category,
-        metricValue: editingProduct.metricValue ?? '',
-        price: String(editingProduct.price),
-        stockQuantity: String(editingProduct.stockQuantity),
-      }
-    : initialValues;
 
   useEffect(() => {
     setIsModalOpen(location.pathname === '/products/add');
@@ -146,10 +107,12 @@ export const Products: React.FC = () => {
     closeAddModal();
   };
 
-  const handleRemoveProduct = (productId: string) => {
-    const nextProducts = products.filter((product) => product.productId !== productId);
+  const handleRemoveProduct = () => {
+    if (!productToDelete) return;
+    const nextProducts = products.filter((product) => product.productId !== productToDelete.productId);
     setProducts(nextProducts);
     storageUtil.saveProducts(nextProducts);
+    setProductToDelete(null);
   };
 
   return (
@@ -258,7 +221,7 @@ export const Products: React.FC = () => {
                             <Pencil className="h-4 w-4" />
                           </button>
                         <button
-                          onClick={() => handleRemoveProduct(product.productId)}
+                          onClick={() => setProductToDelete(product)}
                           className="inline-flex items-center gap-2 rounded-md bg-red-50 px-3 py-2 font-medium text-red-700 transition-colors hover:bg-red-100"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -283,100 +246,36 @@ export const Products: React.FC = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
-          <div className="w-full max-w-2xl app-card shadow-xl">
-            <div className="flex items-center justify-between border-b app-border px-6 py-4">
-              <div>
-                <h2 className="text-lg font-semibold app-heading">
-                  {editingProduct ? 'Update Product' : 'Add Product'}
-                </h2>
-                {editingProduct && (
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    {editingProduct.productId} / {editingProduct.sku}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={closeAddModal}
-                className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                aria-label="Close add product modal"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      {/* Add/Edit Product Modal */}
+      <ProductFormModal
+        isOpen={isModalOpen}
+        editingProduct={editingProduct}
+        categories={categories}
+        onSave={handleSaveProduct}
+        onClose={closeAddModal}
+      />
 
-            <Formik
-              initialValues={formInitialValues}
-              enableReinitialize
-              validationSchema={productSchema}
-              onSubmit={handleSaveProduct}
-            >
-              {({ isSubmitting }) => (
-                <Form className="space-y-5 px-6 py-5">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {[
-                      ['productName', 'Product Name', 'text'],
-                      ['metricValue', 'Metric Value', 'text'],
-                      ['price', 'Price', 'number'],
-                      ['stockQuantity', 'Initial Stock Quantity', 'number'],
-                    ].map(([name, label, type]) => (
-                      <div key={name} className={name === 'stockQuantity' ? 'sm:col-span-2' : ''}>
-                        <label htmlFor={name} className="block text-sm font-medium app-label">
-                          {label}
-                        </label>
-                        <Field
-                          id={name}
-                          name={name}
-                          type={type}
-                          className="mt-1 block w-full app-field"
-                        />
-                        <ErrorMessage name={name} component="p" className="mt-1 text-sm text-red-600" />
-                      </div>
-                    ))}
-                    <div>
-                      <label htmlFor="category" className="block text-sm font-medium app-label">
-                        Category
-                      </label>
-                      <Field
-                        id="category"
-                        name="category"
-                        type="text"
-                        list="product-category-options"
-                        placeholder="Search or select category"
-                        className="mt-1 block w-full app-field"
-                      />
-                      <datalist id="product-category-options">
-                        {categories.map((category) => (
-                          <option key={category.id} value={category.name} />
-                        ))}
-                      </datalist>
-                      <ErrorMessage name="category" component="p" className="mt-1 text-sm text-red-600" />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-3 border-t app-border pt-5">
-                    <button
-                      type="button"
-                      onClick={closeAddModal}
-                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold app-label transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      {editingProduct ? 'Update Product' : 'Add Product'}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={productToDelete !== null}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${productToDelete?.productName}" (${productToDelete?.productId})? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleRemoveProduct}
+        onCancel={() => setProductToDelete(null)}
+      />
     </div>
   );
+};
+
+// Helper kept here since only Products page needs it
+const getNextProductId = (products: StoredProduct[]) => {
+  const highestIdNumber = products.reduce((highest, product) => {
+    const match = product.productId.match(/^PRD-(\d+)$/);
+    return match ? Math.max(highest, Number(match[1])) : highest;
+  }, 0);
+
+  return `PRD-${String(highestIdNumber + 1).padStart(3, '0')}`;
 };
