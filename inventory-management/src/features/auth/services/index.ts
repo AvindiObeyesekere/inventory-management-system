@@ -1,9 +1,62 @@
-// Auth services
+import type { User, LoginCredentials, RegisterCredentials } from '../types';
+import { storageUtil } from '@/utils/localStorage';
+
+const generateId = () => `user_${Date.now()}`;
+const getCurrentTimestamp = () => new Date().toISOString();
+
 export const authService = {
-  login: async (email: string, password: string) => {
-    // TODO: Implement login logic
+  register: async (credentials: RegisterCredentials): Promise<User> => {
+    const { firstName, lastName, email, password } = credentials;
+
+    // Check if user exists
+    const existingUser = storageUtil.getUserByEmail(email);
+    if (existingUser) {
+      throw new Error('Email already registered');
+    }
+
+    const newUser: User = {
+      id: generateId(),
+      firstName,
+      lastName,
+      email,
+      password, // In production, this should be hashed
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+      deletedAt: null,
+    };
+
+    storageUtil.saveUser(newUser);
+    return newUser;
   },
-  logout: async () => {
-    // TODO: Implement logout logic
+
+  login: async (credentials: LoginCredentials): Promise<Omit<User, 'password'>> => {
+    const { email, password } = credentials;
+
+    const user = storageUtil.getUserByEmail(email);
+    if (!user) {
+      throw new Error('Invalid email or password');
+    }
+
+    if (user.password !== password) {
+      throw new Error('Invalid email or password');
+    }
+
+    const userWithoutPassword = { ...user };
+    delete userWithoutPassword.password;
+
+    storageUtil.setCurrentUser(userWithoutPassword);
+    return userWithoutPassword;
+  },
+
+  logout: () => {
+    storageUtil.clearCurrentUser();
+  },
+
+  getCurrentUser: () => {
+    return storageUtil.getCurrentUser();
+  },
+
+  isAuthenticated: () => {
+    return !!storageUtil.getCurrentUser();
   },
 };
