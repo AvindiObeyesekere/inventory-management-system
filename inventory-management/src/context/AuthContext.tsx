@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useMemo, useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthContextType, LoginCredentials, RegisterCredentials } from '@/features/auth/types';
 import { authService } from '@/features/auth/services';
@@ -9,42 +9,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState(authService.getCurrentUser());
   const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated());
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = useCallback(async (credentials: LoginCredentials) => {
     const loggedInUser = await authService.login(credentials);
     setUser(loggedInUser);
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const register = async (credentials: RegisterCredentials) => {
-    const newUser = await authService.register(credentials);
-    // Auto-login after registration
-    const userWithoutPassword = { ...newUser };
-    delete (userWithoutPassword as any).password;
-    setUser(userWithoutPassword);
-    setIsAuthenticated(true);
-    authService.logout(); // Clear session to force manual login
-    setUser(null);
-    setIsAuthenticated(false);
-  };
+  const register = useCallback(async (credentials: RegisterCredentials) => {
+    await authService.register(credentials);
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     authService.logout();
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      login,
+      register,
+      logout,
+    }),
+    [user, isAuthenticated, login, register, logout],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        login,
-        register,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
 };
 

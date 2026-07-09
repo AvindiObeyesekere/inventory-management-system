@@ -11,7 +11,7 @@ export const authService = {
     // Check if user exists
     const existingUser = storageUtil.getUserByEmail(email);
     if (existingUser) {
-      throw new Error('Email already registered');
+      throw new Error('User already exists. Please log in or use a different email address.');
     }
 
     const newUser: User = {
@@ -34,7 +34,7 @@ export const authService = {
 
     const user = storageUtil.getUserByEmail(email);
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new Error('Email not found. Please sign up as a new user.');
     }
 
     if (user.password !== password) {

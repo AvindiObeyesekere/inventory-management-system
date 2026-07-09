@@ -1,38 +1,47 @@
 
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useNavigate, Link } from 'react-router-dom';
-import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { loginValidationSchema } from '@/features/auth/services/validationSchemas';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [error, setError] = useState('');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">Login</h1>
-        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
 
         <Formik
           initialValues={{ email: '', password: '' }}
           validationSchema={loginValidationSchema}
-          onSubmit={async (values) => {
+          onSubmit={async (values, { setFieldError }) => {
             try {
+              setFieldError('email', '');
+              setFieldError('password', '');
               await login(values);
               navigate('/dashboard');
             } catch (err) {
-              setError((err as Error).message);
+              const message = (err as Error).message;
+
+              if (message.toLowerCase().includes('email not found')) {
+                setFieldError('email', message);
+                return;
+              }
+
+              setFieldError('password', message);
             }
           }}
         >
           {({ isSubmitting }) => (
             <Form className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
+                  Email <span className="text-black">*</span>
+                </label>
                 <Field
+                  id="login-email"
                   type="email"
                   name="email"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -42,8 +51,11 @@ export const Login: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
+                  Password <span className="text-black">*</span>
+                </label>
                 <Field
+                  id="login-password"
                   type="password"
                   name="password"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
