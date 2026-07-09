@@ -38,7 +38,7 @@ export const Sidebar: React.FC = () => {
         collapsed ? 'w-20' : 'w-64'
       } min-h-screen bg-gradient-to-b from-blue-600 via-blue-800 to-blue-950 text-white flex flex-col transition-all duration-300 ease-in-out relative dark:from-slate-950 dark:via-blue-950 dark:to-purple-950`}
     >
-      {/* Logo / App name + toggle */}
+      {/* Logo / App name + collapse toggle */}
       <div className="px-4 py-6 border-b border-white/10 flex items-center justify-between">
         {!collapsed && (
           <h1 className="text-xl font-bold leading-tight whitespace-nowrap overflow-hidden">
@@ -60,13 +60,21 @@ export const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      {/* User info */}
+      {/* User info + theme toggle */}
       {!collapsed && (
-        <div className="px-6 py-4 border-b border-white/10">
-          <p className="text-xs text-blue-200">Logged in as</p>
-          <p className="text-sm font-medium truncate">
-            {user?.firstName} {user?.lastName}
-          </p>
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs text-blue-200">Logged in as</p>
+            <p className="text-sm font-medium truncate">
+              {user?.firstName} {user?.lastName}
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
+      )}
+      {collapsed && (
+        <div className="px-4 py-4 border-b border-white/10 flex justify-center">
+          <ThemeToggle />
         </div>
       )}
 
@@ -97,10 +105,7 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* Logout */}
-      <div className="space-y-2 px-3 py-4 border-t border-white/10">
-        <div className={`flex ${collapsed ? 'justify-center' : 'justify-start px-3'}`}>
-          <ThemeToggle />
-        </div>
+      <div className="px-3 py-4 border-t border-white/10">
         <button
           onClick={handleLogout}
           title={collapsed ? 'Logout' : undefined}

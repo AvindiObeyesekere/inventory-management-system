@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/Pagination';
 import { useLocation } from 'react-router-dom';
 import { PackageMinus, TrendingUp } from 'lucide-react';
 import {
@@ -32,6 +34,26 @@ export const Stock: React.FC = () => {
   const [history, setHistory] = useState<StockHistoryItem[]>(() => storageUtil.getStockHistory());
   const [stockError, setStockError] = useState('');
   const Icon = isRestock ? TrendingUp : PackageMinus;
+
+  const {
+    paginatedData: paginatedProducts,
+    currentPage: productsPage,
+    totalPages: productsTotalPages,
+    goToNextPage: productsNext,
+    goToPreviousPage: productsPrev,
+    hasNextPage: productsHasNext,
+    hasPreviousPage: productsHasPrev,
+  } = usePagination({ data: products, itemsPerPage: 5 });
+
+  const {
+    paginatedData: paginatedHistory,
+    currentPage: historyPage,
+    totalPages: historyTotalPages,
+    goToNextPage: historyNext,
+    goToPreviousPage: historyPrev,
+    hasNextPage: historyHasNext,
+    hasPreviousPage: historyHasPrev,
+  } = usePagination({ data: history, itemsPerPage: 5 });
 
   const handleStockUpdate = (values: StockFormValues, { resetForm }: { resetForm: () => void }) => {
     setStockError('');
@@ -114,14 +136,14 @@ export const Stock: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="app-table-body">
-                  {products.length === 0 ? (
+                  {paginatedProducts.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                         Add products before managing stock.
                       </td>
                     </tr>
                   ) : (
-                    products.map((product) => (
+                    paginatedProducts.map((product) => (
                       <tr key={product.productId} className="app-row-hover">
                         <td className="app-td-strong">{product.sku}</td>
                         <td className="app-td">{product.productId}</td>
@@ -144,6 +166,14 @@ export const Stock: React.FC = () => {
                 </tbody>
               </table>
             </div>
+            <Pagination
+              currentPage={productsPage}
+              totalPages={productsTotalPages}
+              onNext={productsNext}
+              onPrevious={productsPrev}
+              hasNextPage={productsHasNext}
+              hasPreviousPage={productsHasPrev}
+            />
           </div>
 
           <div className="app-card">
@@ -262,14 +292,14 @@ export const Stock: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="app-table-body">
-                {history.length === 0 ? (
+                {paginatedHistory.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                       No stock changes recorded yet.
                     </td>
                   </tr>
                 ) : (
-                  history.map((item) => (
+                  paginatedHistory.map((item) => (
                     <tr key={item.id} className="app-row-hover">
                       <td className="app-td">
                         {new Date(item.timestamp).toLocaleString()}
@@ -298,6 +328,14 @@ export const Stock: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={historyPage}
+            totalPages={historyTotalPages}
+            onNext={historyNext}
+            onPrevious={historyPrev}
+            hasNextPage={historyHasNext}
+            hasPreviousPage={historyHasPrev}
+          />
         </div>
       </div>
     </div>

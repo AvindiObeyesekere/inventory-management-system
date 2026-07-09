@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { PackagePlus, Pencil, Trash2, X } from 'lucide-react';
+import { usePagination } from '@/hooks/usePagination';
+import { Pagination } from '@/components/Pagination';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
 type ProductFormValues = {
@@ -56,6 +58,10 @@ export const Products: React.FC = () => {
     selectedCategory === 'all'
       ? products
       : products.filter((product) => product.category === selectedCategory);
+  const {
+    paginatedData: paginatedProducts,
+    currentPage, totalPages, goToNextPage, goToPreviousPage, goToPage, hasNextPage, hasPreviousPage,
+  } = usePagination({ data: filteredProducts, itemsPerPage: 5 });
   const formInitialValues: ProductFormValues = editingProduct
     ? {
         productName: editingProduct.productName,
@@ -69,6 +75,9 @@ export const Products: React.FC = () => {
   useEffect(() => {
     setIsModalOpen(location.pathname === '/products/add');
   }, [location.pathname]);
+  useEffect(() => {
+    if (currentPage > totalPages) goToPage(1);
+  }, [filteredProducts.length]);
 
   const openAddModal = () => {
     setEditingProduct(null);
@@ -184,14 +193,14 @@ export const Products: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="app-table-body">
-                {filteredProducts.length === 0 ? (
+                {paginatedProducts.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                       {products.length === 0 ? 'No products added yet.' : 'No products match this category.'}
                     </td>
                   </tr>
                 ) : (
-                  filteredProducts.map((product) => (
+                  paginatedProducts.map((product) => (
                     <tr key={product.productId} className="app-row-hover">
                       <td className="app-td-strong">{product.productId}</td>
                       <td className="app-td">{product.productName}</td>
@@ -236,6 +245,14 @@ export const Products: React.FC = () => {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onNext={goToNextPage}
+            onPrevious={goToPreviousPage}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+          />
         </div>
       </div>
 
