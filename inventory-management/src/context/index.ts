@@ -1,2 +1,1 @@
-// Export global contexts here
-// Example: export { ThemeContext } from './ThemeContext';
+export { AuthProvider, useAuth } from './AuthContext';
