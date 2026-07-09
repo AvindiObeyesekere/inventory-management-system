@@ -4,6 +4,7 @@ import { Register } from '@/pages/Register';
 import { Dashboard } from '@/pages/Dashboard';
 import { Products } from '@/pages/Products';
 import { Stock } from '@/pages/Stock';
+import { Categories } from '@/pages/Categories';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
 
@@ -28,6 +29,7 @@ const App: React.FC = () => {
           <Route path="/products/add" element={<Products />} />
           <Route path="/stock/restock" element={<Stock />} />
           <Route path="/stock/deduct" element={<Stock />} />
+          <Route path="/categories" element={<Categories />} />
         </Route>
       </Routes>
     </BrowserRouter>

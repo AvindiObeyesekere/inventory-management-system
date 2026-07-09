@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { PackagePlus, Pencil, Trash2, X } from 'lucide-react';
-import { storageUtil, type StoredProduct } from '@/utils/localStorage';
+import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
 type ProductFormValues = {
   productName: string;
@@ -48,8 +48,14 @@ export const Products: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [products, setProducts] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
+  const [categories] = useState<StoredCategory[]>(() => storageUtil.getAllCategories());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<StoredProduct | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const filteredProducts =
+    selectedCategory === 'all'
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
   const formInitialValues: ProductFormValues = editingProduct
     ? {
         productName: editingProduct.productName,
@@ -142,6 +148,27 @@ export const Products: React.FC = () => {
         </div>
 
         <div className="mt-6 overflow-hidden rounded-lg bg-white shadow">
+          <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Product List</h2>
+            <div className="flex items-center gap-3">
+              <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <select
+                id="categoryFilter"
+                value={selectedCategory}
+                onChange={(event) => setSelectedCategory(event.target.value)}
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              >
+                <option value="all">All Categories</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -157,14 +184,14 @@ export const Products: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {products.length === 0 ? (
+                {filteredProducts.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
-                      No products added yet.
+                      {products.length === 0 ? 'No products added yet.' : 'No products match this category.'}
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => (
+                  filteredProducts.map((product) => (
                     <tr key={product.productId} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{product.productId}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.productName}</td>
@@ -246,7 +273,6 @@ export const Products: React.FC = () => {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {[
                       ['productName', 'Product Name', 'text'],
-                      ['category', 'Category', 'text'],
                       ['metricValue', 'Metric Value', 'text'],
                       ['price', 'Price', 'number'],
                       ['stockQuantity', 'Initial Stock Quantity', 'number'],
@@ -264,6 +290,25 @@ export const Products: React.FC = () => {
                         <ErrorMessage name={name} component="p" className="mt-1 text-sm text-red-600" />
                       </div>
                     ))}
+                    <div>
+                      <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                        Category
+                      </label>
+                      <Field
+                        id="category"
+                        name="category"
+                        type="text"
+                        list="product-category-options"
+                        placeholder="Search or select category"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      />
+                      <datalist id="product-category-options">
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.name} />
+                        ))}
+                      </datalist>
+                      <ErrorMessage name="category" component="p" className="mt-1 text-sm text-red-600" />
+                    </div>
                   </div>
 
                   <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">

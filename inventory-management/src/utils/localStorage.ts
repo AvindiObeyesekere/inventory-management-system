@@ -2,6 +2,34 @@ const USERS_KEY = 'ims_users';
 const CURRENT_USER_KEY = 'ims_current_user';
 const PRODUCTS_KEY = 'ims_products';
 const STOCK_HISTORY_KEY = 'ims_stock_history';
+const CATEGORIES_KEY = 'ims_categories';
+
+const DEFAULT_CATEGORIES = [
+  {
+    name: 'Beverages',
+    imageUrl:
+      'https://www.shutterstock.com/image-photo/poznan-pol-mar-21-2025-600nw-2605832631.jpg',
+  },
+  {
+    name: 'Electronics',
+    imageUrl:
+      'https://img.magnific.com/free-photo/modern-stationary-collection-arrangement_23-2149309643.jpg?semt=ais_hybrid&w=740&q=80',
+  },
+  {
+    name: 'Fresh Dairy',
+    imageUrl:
+      'https://media.istockphoto.com/id/910881428/photo/dairy-products-shot-on-rustic-wooden-table.jpg?s=612x612&w=0&k=20&c=Xh_dDL7XsV0Rff_aIrLOQJ1ZoapugiatmXUxWdo7q2s=',
+  },
+  {
+    name: 'Frozen',
+    imageUrl:
+      'https://www.ceylonsupermart.com/cdn/shop/collections/e2fe2ee1b387b9c55cefee915e00ea90.jpg?v=1655384860',
+  },
+  {
+    name: 'Rice',
+    imageUrl: 'https://spar2u.lk/cdn/shop/files/3000407-1.jpg?v=1748382650&width=533',
+  },
+];
 
 export interface StoredProduct {
   productName: string;
@@ -23,6 +51,13 @@ export interface StockHistoryItem {
   previousQuantity: number;
   newQuantity: number;
   timestamp: string;
+}
+
+export interface StoredCategory {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  createdAt: string;
 }
 
 const getNextSku = (products: StoredProduct[]) => {
@@ -125,5 +160,50 @@ export const storageUtil = {
 
   saveStockHistory: (history: StockHistoryItem[]) => {
     localStorage.setItem(STOCK_HISTORY_KEY, JSON.stringify(history));
+  },
+
+  getAllCategories: (): StoredCategory[] => {
+    try {
+      const categories = localStorage.getItem(CATEGORIES_KEY);
+
+      if (categories) {
+        const parsedCategories: StoredCategory[] = JSON.parse(categories);
+        let changed = false;
+        const categoriesWithImages = parsedCategories.map((category) => {
+          const defaultCategory = DEFAULT_CATEGORIES.find(
+            (item) => item.name.toLowerCase() === category.name.toLowerCase(),
+          );
+
+          if (!category.imageUrl && defaultCategory?.imageUrl) {
+            changed = true;
+            return { ...category, imageUrl: defaultCategory.imageUrl };
+          }
+
+          return category;
+        });
+
+        if (changed) {
+          localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categoriesWithImages));
+        }
+
+        return categoriesWithImages;
+      }
+
+      const defaultCategories = DEFAULT_CATEGORIES.map((category, index) => ({
+        id: `CAT-${String(index + 1).padStart(3, '0')}`,
+        name: category.name,
+        imageUrl: category.imageUrl,
+        createdAt: new Date().toISOString(),
+      }));
+
+      localStorage.setItem(CATEGORIES_KEY, JSON.stringify(defaultCategories));
+      return defaultCategories;
+    } catch {
+      return [];
+    }
+  },
+
+  saveCategories: (categories: StoredCategory[]) => {
+    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
   },
 };

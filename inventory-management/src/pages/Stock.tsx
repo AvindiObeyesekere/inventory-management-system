@@ -25,8 +25,9 @@ const stockSchema = Yup.object({
 
 export const Stock: React.FC = () => {
   const location = useLocation();
-  const mode = location.pathname.includes('/stock/deduct') ? 'deduct' : 'restock';
-  const isRestock = mode === 'restock';
+  const initialMode = location.pathname.includes('/stock/deduct') ? 'deduct' : 'restock';
+  const [stockAction, setStockAction] = useState<'restock' | 'deduct'>(initialMode);
+  const isRestock = stockAction === 'restock';
   const [products, setProducts] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
   const [history, setHistory] = useState<StockHistoryItem[]>(() => storageUtil.getStockHistory());
   const [stockError, setStockError] = useState('');
@@ -61,7 +62,7 @@ export const Stock: React.FC = () => {
       productId: product.productId,
       productName: product.productName,
       sku: product.sku ?? '',
-      type: mode,
+      type: stockAction,
       quantity,
       previousQuantity: product.stockQuantity,
       newQuantity,
@@ -83,7 +84,7 @@ export const Stock: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Stock Management</h1>
             <p className="mt-1 text-sm text-gray-600">
-              {isRestock ? 'Increase incoming stock safely.' : 'Decrease outgoing stock safely.'}
+              Increase or decrease product stock safely.
             </p>
           </div>
           <div
@@ -105,11 +106,11 @@ export const Stock: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">SKU</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Quantity</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Availability</th>
+                    <th className="w-36 whitespace-nowrap px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">SKU</th>
+                    <th className="w-40 whitespace-nowrap px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product ID</th>
+                    <th className="min-w-64 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Product Name</th>
+                    <th className="w-32 whitespace-nowrap px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Quantity</th>
+                    <th className="w-40 whitespace-nowrap px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Availability</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
@@ -148,7 +149,7 @@ export const Stock: React.FC = () => {
           <div className="rounded-lg bg-white shadow">
             <div className="border-b border-gray-200 px-6 py-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                {isRestock ? 'Restock Product' : 'Deduct Stock'}
+                Update Stock
               </h2>
             </div>
             <Formik
@@ -158,6 +159,42 @@ export const Stock: React.FC = () => {
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-5 px-6 py-5">
+                  <div>
+                    <span className="block text-sm font-medium text-gray-700">Action</span>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStockAction('restock');
+                          setStockError('');
+                        }}
+                        className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+                          isRestock
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <TrendingUp className="h-4 w-4" />
+                        Increase
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStockAction('deduct');
+                          setStockError('');
+                        }}
+                        className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+                          !isRestock
+                            ? 'bg-orange-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        <PackageMinus className="h-4 w-4" />
+                        Decrease
+                      </button>
+                    </div>
+                  </div>
+
                   <div>
                     <label htmlFor="productId" className="block text-sm font-medium text-gray-700">
                       Product

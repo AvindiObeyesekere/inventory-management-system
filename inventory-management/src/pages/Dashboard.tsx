@@ -1,6 +1,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Package, PackagePlus, PackageMinus, LayoutDashboard, TrendingUp, Boxes } from 'lucide-react';
+import { storageUtil } from '@/utils/localStorage';
 
 export const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -11,11 +12,15 @@ export const Dashboard: React.FC = () => {
     navigate('/login');
   };
 
-  // TODO: replace with real data from product store
+  const products = storageUtil.getAllProducts();
+  const categories = storageUtil.getAllCategories();
   const stats = {
-    totalProducts: 0,
-    totalInventoryValue: 0,
-    totalCategories: 0,
+    totalProducts: products.length,
+    totalInventoryValue: products.reduce(
+      (total, product) => total + product.price * product.stockQuantity,
+      0,
+    ),
+    totalCategories: categories.length,
   };
 
   const actions = [
@@ -94,7 +99,7 @@ export const Dashboard: React.FC = () => {
             <div className="bg-white rounded-lg shadow p-6">
               <p className="text-sm font-medium text-gray-500">Total Inventory Value</p>
               <p className="mt-2 text-3xl font-bold text-gray-900">
-                ${stats.totalInventoryValue.toLocaleString()}
+                {stats.totalInventoryValue.toLocaleString()} Rs
               </p>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
