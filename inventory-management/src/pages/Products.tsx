@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { PackagePlus, Trash2, X } from 'lucide-react';
+import { PackagePlus, Pencil, Trash2, X } from 'lucide-react';
 import { storageUtil, type StoredProduct } from '@/utils/localStorage';
 
 type ProductFormValues = {
   productName: string;
   category: string;
+  metricValue: string;
   price: string;
   stockQuantity: string;
 };
@@ -15,6 +16,7 @@ type ProductFormValues = {
 const initialValues: ProductFormValues = {
   productName: '',
   category: '',
+  metricValue: '',
   price: '',
   stockQuantity: '',
 };
@@ -22,6 +24,7 @@ const initialValues: ProductFormValues = {
 const productSchema = Yup.object({
   productName: Yup.string().trim().required('Product name is required'),
   category: Yup.string().trim().required('Category is required'),
+  metricValue: Yup.string().trim().required('Metric value is required'),
   price: Yup.number()
     .typeError('Price must be a number')
     .min(0, 'Price cannot be negative')
@@ -29,8 +32,7 @@ const productSchema = Yup.object({
   stockQuantity: Yup.number()
     .typeError('Stock quantity must be a number')
     .integer('Stock quantity must be a whole number')
-    .min(0, 'Stock quantity cannot be negative')
-    .required('Stock quantity is required'),
+    .min(0, 'Stock quantity cannot be negative'),
 });
 
 const getNextProductId = (products: StoredProduct[]) => {
@@ -47,28 +49,67 @@ export const Products: React.FC = () => {
   const location = useLocation();
   const [products, setProducts] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<StoredProduct | null>(null);
+  const formInitialValues: ProductFormValues = editingProduct
+    ? {
+        productName: editingProduct.productName,
+        category: editingProduct.category,
+        metricValue: editingProduct.metricValue ?? '',
+        price: String(editingProduct.price),
+        stockQuantity: String(editingProduct.stockQuantity),
+      }
+    : initialValues;
 
   useEffect(() => {
     setIsModalOpen(location.pathname === '/products/add');
   }, [location.pathname]);
 
   const openAddModal = () => {
+    setEditingProduct(null);
     setIsModalOpen(true);
     navigate('/products/add');
   };
 
   const closeAddModal = () => {
     setIsModalOpen(false);
+    setEditingProduct(null);
     navigate('/products');
   };
 
-  const handleAddProduct = (values: ProductFormValues) => {
+  const openEditModal = (product: StoredProduct) => {
+    setEditingProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProduct = (values: ProductFormValues) => {
+    if (editingProduct) {
+      const nextProducts = products.map((product) =>
+        product.productId === editingProduct.productId
+          ? {
+              ...product,
+              productName: values.productName.trim(),
+              category: values.category.trim(),
+              metricValue: values.metricValue.trim(),
+              price: Number(values.price),
+              stockQuantity: values.stockQuantity === '' ? 0 : Number(values.stockQuantity),
+            }
+          : product,
+      );
+
+      setProducts(nextProducts);
+      storageUtil.saveProducts(nextProducts);
+      closeAddModal();
+      return;
+    }
+
     const newProduct: StoredProduct = {
       productName: values.productName.trim(),
       productId: getNextProductId(products),
+      sku: storageUtil.getNextSku(products),
       category: values.category.trim(),
+      metricValue: values.metricValue.trim(),
       price: Number(values.price),
-      stockQuantity: Number(values.stockQuantity),
+      stockQuantity: values.stockQuantity === '' ? 0 : Number(values.stockQuantity),
     };
 
     const nextProducts = [...products, newProduct];
@@ -110,6 +151,7 @@ export const Products: React.FC = () => {
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Price</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Stock Quantity</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Metric Value</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">InStock Status</th>
                   <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">Actions</th>
                 </tr>
@@ -117,7 +159,7 @@ export const Products: React.FC = () => {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-sm text-gray-500">
+                    <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500">
                       No products added yet.
                     </td>
                   </tr>
@@ -127,8 +169,9 @@ export const Products: React.FC = () => {
                       <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{product.productId}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.productName}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.category}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">${product.price.toFixed(2)}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.price.toFixed(2)} Rs</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.stockQuantity}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">{product.metricValue || '-'}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
@@ -141,6 +184,16 @@ export const Products: React.FC = () => {
                         </span>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(product)}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-blue-50 text-blue-700 transition-colors hover:bg-blue-100"
+                            aria-label={`Update ${product.productName}`}
+                            title="Update"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
                         <button
                           onClick={() => handleRemoveProduct(product.productId)}
                           className="inline-flex items-center gap-2 rounded-md bg-red-50 px-3 py-2 font-medium text-red-700 transition-colors hover:bg-red-100"
@@ -148,6 +201,7 @@ export const Products: React.FC = () => {
                           <Trash2 className="h-4 w-4" />
                           Remove
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -162,7 +216,16 @@ export const Products: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
           <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">Add Product</h2>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {editingProduct ? 'Update Product' : 'Add Product'}
+                </h2>
+                {editingProduct && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    {editingProduct.productId} / {editingProduct.sku}
+                  </p>
+                )}
+              </div>
               <button
                 onClick={closeAddModal}
                 className="rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
@@ -173,9 +236,10 @@ export const Products: React.FC = () => {
             </div>
 
             <Formik
-              initialValues={initialValues}
+              initialValues={formInitialValues}
+              enableReinitialize
               validationSchema={productSchema}
-              onSubmit={handleAddProduct}
+              onSubmit={handleSaveProduct}
             >
               {({ isSubmitting }) => (
                 <Form className="space-y-5 px-6 py-5">
@@ -183,8 +247,9 @@ export const Products: React.FC = () => {
                     {[
                       ['productName', 'Product Name', 'text'],
                       ['category', 'Category', 'text'],
+                      ['metricValue', 'Metric Value', 'text'],
                       ['price', 'Price', 'number'],
-                      ['stockQuantity', 'Stock Quantity', 'number'],
+                      ['stockQuantity', 'Initial Stock Quantity', 'number'],
                     ].map(([name, label, type]) => (
                       <div key={name} className={name === 'stockQuantity' ? 'sm:col-span-2' : ''}>
                         <label htmlFor={name} className="block text-sm font-medium text-gray-700">
@@ -214,7 +279,7 @@ export const Products: React.FC = () => {
                       disabled={isSubmitting}
                       className="rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      Add Product
+                      {editingProduct ? 'Update Product' : 'Add Product'}
                     </button>
                   </div>
                 </Form>
