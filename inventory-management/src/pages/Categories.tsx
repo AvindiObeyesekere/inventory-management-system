@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { ArrowLeft, Boxes, PackagePlus, X } from 'lucide-react';
+import { ArrowLeft, Boxes, PackagePlus, X, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
@@ -30,9 +30,20 @@ export const Categories: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<StoredCategory | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryError, setCategoryError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const selectedProducts = selectedCategory
     ? products.filter((product) => product.category === selectedCategory.name)
     : [];
+
+  // Filter selected products by search within category
+  const filteredSelectedProducts = searchQuery.trim()
+    ? selectedProducts.filter(
+        (p) =>
+          p.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.sku?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : selectedProducts;
 
   const handleAddCategory = (values: CategoryFormValues, { resetForm }: { resetForm: () => void }) => {
     const categoryName = values.name.trim();
@@ -78,25 +89,42 @@ export const Categories: React.FC = () => {
                   Back to Categories
                 </button>
                 <h1 className="text-2xl font-bold app-heading">{selectedCategory.name}</h1>
-                <p className="mt-1 text-sm app-muted">Products in this category.</p>
+                <p className="mt-1 text-sm app-muted">
+                  {filteredSelectedProducts.length} product{filteredSelectedProducts.length !== 1 ? 's' : ''} in this category
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate('/products/add')}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
-              >
-                <PackagePlus className="h-5 w-5" />
-                Add Product
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Search Bar inside category */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or SKU..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="app-field pl-9 w-48 sm:w-56"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/products/add')}
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
+                >
+                  <PackagePlus className="h-5 w-5" />
+                  Add Product
+                </button>
+              </div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {selectedProducts.length === 0 ? (
+              {filteredSelectedProducts.length === 0 ? (
                 <div className="app-card p-8 text-center text-sm text-gray-500 dark:text-gray-400 sm:col-span-2 lg:col-span-4">
-                  No products found in {selectedCategory.name}.
+                  {searchQuery
+                    ? `No products match "${searchQuery}" in ${selectedCategory.name}.`
+                    : `No products found in ${selectedCategory.name}.`}
                 </div>
               ) : (
-                selectedProducts.map((product) => (
+                filteredSelectedProducts.map((product) => (
                   <div key={product.productId} className="app-card p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -161,7 +189,10 @@ export const Categories: React.FC = () => {
                 <button
                   key={category.id}
                   type="button"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory(category);
+                  }}
                   className="group relative h-44 overflow-hidden rounded-lg bg-gray-900 text-left shadow"
                 >
                   {category.imageUrl ? (

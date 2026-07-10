@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PackagePlus, Pencil, Trash2, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
+import { PackagePlus, Pencil, Trash2, ArrowUpAZ, ArrowDownAZ, Search, Download } from 'lucide-react';
 import { usePagination } from '@/hooks/usePagination';
 import { Pagination } from '@/components/Pagination';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
@@ -25,18 +25,32 @@ export const Products: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<StoredProduct | null>(null);
   const [productToDelete, setProductToDelete] = useState<StoredProduct | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter by category
   const categoryFilteredProducts =
     selectedCategory === 'all'
       ? products
       : products.filter((product) => product.category === selectedCategory);
 
-  const filteredProducts = sortOrder
-    ? [...categoryFilteredProducts].sort((a, b) =>
-      sortOrder === 'asc'
-        ? a.productName.localeCompare(b.productName)
-        : b.productName.localeCompare(a.productName),
-    )
+  // Filter by search query (product name or SKU)
+  const searchedProducts = searchQuery.trim()
+    ? categoryFilteredProducts.filter(
+        (product) =>
+          product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.sku?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
     : categoryFilteredProducts;
+
+  // Sort
+  const filteredProducts = sortOrder
+    ? [...searchedProducts].sort((a, b) =>
+        sortOrder === 'asc'
+          ? a.productName.localeCompare(b.productName)
+          : b.productName.localeCompare(a.productName),
+      )
+    : searchedProducts;
+
   const {
     paginatedData: paginatedProducts,
     currentPage, totalPages, goToNextPage, goToPreviousPage, goToPage, hasNextPage, hasPreviousPage,
@@ -48,6 +62,11 @@ export const Products: React.FC = () => {
   useEffect(() => {
     if (currentPage > totalPages) goToPage(1);
   }, [filteredProducts.length]);
+
+  // Reset to page 1 when search or category changes
+  useEffect(() => {
+    goToPage(1);
+  }, [searchQuery, selectedCategory]);
 
   const openAddModal = () => {
     setEditingProduct(null);
@@ -62,7 +81,7 @@ export const Products: React.FC = () => {
   };
 
   const toggleSortOrder = () => {
-  setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
   const openEditModal = (product: StoredProduct) => {
@@ -115,6 +134,31 @@ export const Products: React.FC = () => {
     setProductToDelete(null);
   };
 
+  const exportToCsv = () => {
+    const headers = ['Product ID', 'SKU', 'Product Name', 'Category', 'Price (Rs)', 'Stock Quantity', 'Metric Value', 'Status'];
+    const rows = products.map((p) => [
+      p.productId,
+      p.sku ?? '',
+      `"${p.productName}"`,
+      `"${p.category}"`,
+      p.price.toFixed(2),
+      p.stockQuantity,
+      p.metricValue ?? '',
+      p.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `products_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="app-page">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -123,19 +167,40 @@ export const Products: React.FC = () => {
             <h1 className="text-2xl font-bold app-heading">Products</h1>
             <p className="mt-1 text-sm app-muted">Track product details and current stock levels.</p>
           </div>
-          <button
-            onClick={openAddModal}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
-          >
-            <PackagePlus className="h-5 w-5" />
-            Add Product
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={exportToCsv}
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold app-label transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </button>
+            <button
+              onClick={openAddModal}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
+            >
+              <PackagePlus className="h-5 w-5" />
+              Add Product
+            </button>
+          </div>
         </div>
 
         <div className="mt-6 overflow-hidden app-card">
           <div className="flex flex-col gap-3 border-b app-border px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold app-heading">Product List</h2>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name or SKU..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="app-field pl-9 w-48 sm:w-56"
+                />
+              </div>
+
               <span className="text-sm font-medium app-label whitespace-nowrap">
                 {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
               </span>
@@ -173,6 +238,7 @@ export const Products: React.FC = () => {
               <thead className="app-table-head">
                 <tr>
                   <th className="app-th">Product ID</th>
+                  <th className="app-th">SKU</th>
                   <th className="app-th">Product Name</th>
                   <th className="app-th">Category</th>
                   <th className="app-th">Price</th>
@@ -185,14 +251,19 @@ export const Products: React.FC = () => {
               <tbody className="app-table-body">
                 {paginatedProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                      {products.length === 0 ? 'No products added yet.' : 'No products match this category.'}
+                    <td colSpan={9} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                      {searchQuery
+                        ? `No products match "${searchQuery}".`
+                        : products.length === 0
+                          ? 'No products added yet.'
+                          : 'No products match this category.'}
                     </td>
                   </tr>
                 ) : (
                   paginatedProducts.map((product) => (
                     <tr key={product.productId} className="app-row-hover">
                       <td className="app-td-strong">{product.productId}</td>
+                      <td className="app-td">{product.sku}</td>
                       <td className="app-td">{product.productName}</td>
                       <td className="app-td">{product.category}</td>
                       <td className="app-td">{product.price.toFixed(2)} Rs</td>

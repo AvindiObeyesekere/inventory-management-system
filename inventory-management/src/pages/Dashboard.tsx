@@ -96,8 +96,8 @@ export const Dashboard: React.FC = () => {
     <div className="app-page">
       <nav className="app-panel relative overflow-visible">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-            <div className="flex items-center gap-2 text-white/80 text-sm font-medium">
+          <div className="flex items-center justify-between h-16 gap-4">
+            <div className="flex items-center gap-2 text-gray-700 dark:text-white/80 text-sm font-medium">
               <span className="hidden sm:inline">👋</span>
               <span className="hidden sm:inline truncate max-w-[140px]">{user?.firstName} {user?.lastName}</span>
             </div>
