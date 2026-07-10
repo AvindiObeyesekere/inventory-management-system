@@ -3,14 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { PackagePlus, Pencil, Trash2, Search, Download } from 'lucide-react';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
-type ProductFormValues = {
-  productName: string;
-  category: string;
-  metricValue: string;
-  price: string;
-  stockQuantity: string;
-};
-
 export const MobileProducts: React.FC = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
@@ -48,42 +40,6 @@ export const MobileProducts: React.FC = () => {
   const openEditModal = (product: StoredProduct) => {
     setEditingProduct(product);
     setIsModalOpen(true);
-  };
-
-  const handleSaveProduct = (values: ProductFormValues) => {
-    if (editingProduct) {
-      const nextProducts = products.map((product) =>
-        product.productId === editingProduct.productId
-          ? {
-              ...product,
-              productName: values.productName.trim(),
-              category: values.category.trim(),
-              metricValue: values.metricValue.trim(),
-              price: Number(values.price),
-              stockQuantity: values.stockQuantity === '' ? 0 : Number(values.stockQuantity),
-            }
-          : product,
-      );
-      setProducts(nextProducts);
-      storageUtil.saveProducts(nextProducts);
-      closeAddModal();
-      return;
-    }
-
-    const newProduct: StoredProduct = {
-      productName: values.productName.trim(),
-      productId: `PRD-${String(products.length + 1).padStart(3, '0')}`,
-      sku: `SKU-${String(products.length + 1).padStart(4, '0')}`,
-      category: values.category.trim(),
-      metricValue: values.metricValue.trim(),
-      price: Number(values.price),
-      stockQuantity: values.stockQuantity === '' ? 0 : Number(values.stockQuantity),
-    };
-
-    const nextProducts = [...products, newProduct];
-    setProducts(nextProducts);
-    storageUtil.saveProducts(nextProducts);
-    closeAddModal();
   };
 
   const handleRemoveProduct = () => {

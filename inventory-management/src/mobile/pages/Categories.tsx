@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { PackagePlus, Search, ArrowLeft, Boxes } from 'lucide-react';
 import { storageUtil, type StoredCategory, type StoredProduct } from '@/utils/localStorage';
 
 export const MobileCategories: React.FC = () => {
-  const navigate = useNavigate();
   const [categories, setCategories] = useState<StoredCategory[]>(() => storageUtil.getAllCategories());
   const [products] = useState<StoredProduct[]>(() => storageUtil.getAllProducts());
   const [selectedCategory, setSelectedCategory] = useState<StoredCategory | null>(null);

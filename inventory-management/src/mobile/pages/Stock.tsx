@@ -3,11 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { PackageMinus, TrendingUp } from 'lucide-react';
 import { storageUtil, type StockHistoryItem, type StoredProduct } from '@/utils/localStorage';
 
-type StockFormValues = {
-  productId: string;
-  quantity: string;
-};
-
 export const MobileStock: React.FC = () => {
   const location = useLocation();
   const initialMode = location.pathname.includes('/stock/deduct') ? 'deduct' : 'restock';
