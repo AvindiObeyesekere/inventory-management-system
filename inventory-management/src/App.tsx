@@ -7,6 +7,12 @@ import { Stock } from '@/pages/Stock';
 import { Categories } from '@/pages/Categories';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { DashboardLayout } from '@/layouts/DashboardLayout';
+import { MobileLayout } from '@/mobile/MobileLayout';
+import { MobileDashboard } from '@/mobile/pages/Dashboard';
+import { MobileProducts } from '@/mobile/pages/Products';
+import { MobileStock } from '@/mobile/pages/Stock';
+import { MobileCategories } from '@/mobile/pages/Categories';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const App: React.FC = () => {
   return (
@@ -16,24 +22,34 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* All routes nested here get the Sidebar via DashboardLayout */}
+        {/* Protected routes with responsive layout */}
         <Route
           element={
             <ProtectedRoute>
-              <DashboardLayout />
+              <ResponsiveLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/products/add" element={<Products />} />
-          <Route path="/stock/restock" element={<Stock />} />
-          <Route path="/stock/deduct" element={<Stock />} />
-          <Route path="/categories" element={<Categories />} />
+          <Route path="/dashboard" element={<ResponsivePage desktop={<Dashboard />} mobile={<MobileDashboard />} />} />
+          <Route path="/products" element={<ResponsivePage desktop={<Products />} mobile={<MobileProducts />} />} />
+          <Route path="/products/add" element={<ResponsivePage desktop={<Products />} mobile={<MobileProducts />} />} />
+          <Route path="/stock/restock" element={<ResponsivePage desktop={<Stock />} mobile={<MobileStock />} />} />
+          <Route path="/stock/deduct" element={<ResponsivePage desktop={<Stock />} mobile={<MobileStock />} />} />
+          <Route path="/categories" element={<ResponsivePage desktop={<Categories />} mobile={<MobileCategories />} />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
+};
+
+const ResponsiveLayout: React.FC = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <MobileLayout /> : <DashboardLayout />;
+};
+
+const ResponsivePage: React.FC<{ desktop: React.ReactNode; mobile: React.ReactNode }> = ({ desktop, mobile }) => {
+  const isMobile = useIsMobile();
+  return <>{isMobile ? mobile : desktop}</>;
 };
 
 export default App;
