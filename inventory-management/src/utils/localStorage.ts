@@ -1,3 +1,5 @@
+import { SEED_PRODUCTS } from './seedData';
+
 const USERS_KEY = 'ims_users';
 const CURRENT_USER_KEY = 'ims_current_user';
 const PRODUCTS_KEY = 'ims_products';
@@ -69,6 +71,14 @@ const getNextSku = (products: StoredProduct[]) => {
   return `SKU-${String(highestSkuNumber + 1).padStart(4, '0')}`;
 };
 
+const seedNewProducts = (seedItems: Omit<StoredProduct, 'productId' | 'sku'>[]): StoredProduct[] => {
+  return seedItems.map((item, index) => ({
+    ...item,
+    productId: `PRD-${String(index + 1).padStart(3, '0')}`,
+    sku: `SKU-${String(index + 1).padStart(4, '0')}`,
+  }));
+};
+
 const ensureProductSkus = (products: StoredProduct[]) => {
   let changed = false;
   let highestSkuNumber = products.reduce((highest, product) => {
@@ -131,6 +141,14 @@ export const storageUtil = {
     try {
       const products = localStorage.getItem(PRODUCTS_KEY);
       const parsedProducts = products ? JSON.parse(products) : [];
+
+      // Seed sample products on first login when localStorage is empty
+      if (parsedProducts.length === 0) {
+        const seededProducts = seedNewProducts(SEED_PRODUCTS);
+        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(seededProducts));
+        return seededProducts;
+      }
+
       const result = ensureProductSkus(parsedProducts);
 
       if (result.changed) {
