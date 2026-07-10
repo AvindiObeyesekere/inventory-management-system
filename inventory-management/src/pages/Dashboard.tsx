@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Package, PackagePlus, PackageMinus, LayoutDashboard, TrendingUp, Boxes, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Package, PackagePlus, PackageMinus, LayoutDashboard, TrendingUp, Boxes, ChevronsLeft, ChevronsRight, Menu } from 'lucide-react';
 import { storageUtil } from '@/utils/localStorage';
 import companyLogo from '@/assets/logo.png';
 import {
@@ -25,6 +25,7 @@ export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showAnalytics, setShowAnalytics] = useState(true);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const products = storageUtil.getAllProducts();
   const categories = storageUtil.getAllCategories();
@@ -94,9 +95,27 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="app-page">
+      {/* Mobile nav toggle */}
+      <button
+        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+        className="fixed top-4 left-4 z-50 rounded-md bg-blue-700 p-2 text-white shadow-lg md:hidden"
+        aria-label="Toggle navigation"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+
+      {/* Mobile nav overlay */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
       <nav className="app-panel relative overflow-visible">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center justify-between h-16 gap-4">
             <div className="flex items-center gap-2 text-gray-700 dark:text-white/80 text-sm font-medium">
               <span className="hidden sm:inline">👋</span>
               <span className="hidden sm:inline truncate max-w-[140px]">{user?.firstName} {user?.lastName}</span>
@@ -114,16 +133,37 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="w-32 flex-shrink-0" />
           </div>
+
+          {/* Mobile nav */}
+          <div className={`md:hidden ${mobileNavOpen ? 'block' : 'hidden'}`}>
+            <div className="pt-4 pb-3 space-y-3">
+              <div className="flex items-center gap-2 text-gray-700 dark:text-white/80 text-sm font-medium px-2">
+                <span>👋</span>
+                <span className="truncate">{user?.firstName} {user?.lastName}</span>
+              </div>
+              {navTabs.map((tab) => (
+                <Link
+                  key={tab.path}
+                  to={tab.path}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="block px-3 py-2 rounded-md text-base font-medium app-label hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
+        {/* Logo - hidden on mobile, shown on desktop */}
         <img
           src={companyLogo}
           alt="Company Logo"
-          style={{ height: '140px', width: '200px' }}
-          className="absolute top-1/2 right-6 -translate-y-1/2 object-contain"
+          style={{ height: '120px', width: '170px' }}
+          className="hidden md:block absolute top-1/2 right-6 -translate-y-1/2 object-contain"
         />
       </nav>
 
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-6">
         {/* KPI Stats Overview */}
         <div>
           <h2 className="text-lg font-medium app-heading mb-4 flex items-center gap-2">
@@ -152,26 +192,26 @@ export const Dashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowAnalytics(true)}
-            className={`inline-flex items-center gap-2 rounded-full border-2 px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+            className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all duration-300 ${
               showAnalytics
                 ? 'border-blue-800 bg-gradient-to-b from-blue-600 via-blue-800 to-blue-950 text-white shadow-md dark:from-slate-950 dark:via-blue-950 dark:to-purple-950'
                 : 'border-blue-200 bg-white text-blue-700 hover:border-blue-400 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300 dark:hover:border-blue-600 dark:hover:bg-gray-800'
             }`}
           >
-            <ChevronsRight className={`h-5 w-5 transition-all duration-300 ${showAnalytics ? 'opacity-0 w-0' : 'animate-bounce'}`} />
+            <ChevronsRight className={`h-4 w-4 transition-all duration-300 ${showAnalytics ? 'opacity-0 w-0' : 'animate-bounce'}`} />
             <span>Analytics</span>
           </button>
 
           <button
             onClick={() => setShowAnalytics(false)}
-            className={`inline-flex items-center gap-2 rounded-full border-2 px-5 py-2 text-sm font-semibold transition-all duration-300 ${
+            className={`inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-semibold transition-all duration-300 ${
               !showAnalytics
                 ? 'border-purple-800 bg-gradient-to-b from-purple-600 via-purple-800 to-purple-950 text-white shadow-md dark:from-slate-950 dark:via-purple-950 dark:to-indigo-950'
                 : 'border-purple-200 bg-white text-purple-700 hover:border-purple-400 hover:bg-purple-50 dark:border-purple-800 dark:bg-gray-900 dark:text-purple-300 dark:hover:border-purple-600 dark:hover:bg-gray-800'
             }`}
           >
             <span>Quick Actions</span>
-            <ChevronsLeft className={`h-5 w-5 transition-all duration-300 ${!showAnalytics ? 'opacity-0 w-0' : 'animate-bounce'}`} />
+            <ChevronsLeft className={`h-4 w-4 transition-all duration-300 ${!showAnalytics ? 'opacity-0 w-0' : 'animate-bounce'}`} />
           </button>
         </div>
 
@@ -190,14 +230,14 @@ export const Dashboard: React.FC = () => {
                   {categoryDistribution.length === 0 ? (
                     <p className="text-sm text-gray-500 dark:text-gray-400 py-8 text-center">No products to show.</p>
                   ) : (
-                    <ResponsiveContainer width="100%" height={260}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <PieChart>
                         <Pie
                           data={categoryDistribution}
                           cx="50%"
                           cy="50%"
-                          innerRadius={55}
-                          outerRadius={90}
+                          innerRadius={45}
+                          outerRadius={75}
                           paddingAngle={3}
                           dataKey="value"
                           label={({ name, percent }: { name?: string; percent?: number }) =>
@@ -220,17 +260,17 @@ export const Dashboard: React.FC = () => {
                   {stockDistribution.length === 0 ? (
                     <p className="text-sm text-gray-500 dark:text-gray-400 py-8 text-center">No products to show.</p>
                   ) : (
-                    <ResponsiveContainer width="100%" height={260}>
+                    <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={stockDistribution} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
                         <XAxis
                           dataKey="name"
-                          tick={{ fontSize: 11 }}
+                          tick={{ fontSize: 10 }}
                           interval={0}
                           angle={-20}
                           textAnchor="end"
                           height={50}
                         />
-                        <YAxis tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 10 }} />
                         <Tooltip />
                         <Bar dataKey="stock" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       </BarChart>
