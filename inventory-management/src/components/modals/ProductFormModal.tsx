@@ -61,8 +61,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     : initialValues;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
-      <div className="w-full max-w-2xl app-card shadow-xl">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-2xl app-card shadow-xl">
         <div className="flex items-center justify-between border-b app-border px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold app-heading">

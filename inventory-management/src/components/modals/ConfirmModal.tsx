@@ -44,8 +44,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   const styles = variantStyles[variant];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
-      <div className="w-full max-w-md app-card shadow-xl">
+    <div onClick={onCancel} className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 px-4">
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md app-card shadow-xl">
         <div className="flex items-center justify-between border-b app-border px-6 py-4">
           <h2 className="text-lg font-semibold app-heading">{title}</h2>
           <button
