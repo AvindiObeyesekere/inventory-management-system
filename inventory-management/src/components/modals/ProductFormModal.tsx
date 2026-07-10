@@ -93,10 +93,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <Form className="space-y-5 px-6 py-5">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {[
-                  ['productName', 'Product Name', 'text'],
-                  ['metricValue', 'Metric Value', 'text'],
-                  ['price', 'Price', 'number'],
-                  ['stockQuantity', 'Initial Stock Quantity', 'number'],
+                  ['productName', 'Product Name *', 'text'],
+                  ['metricValue', 'Metric Value *', 'text'],
+                  ['price', 'Price *', 'number'],
+                  ['stockQuantity', 'Initial Stock Quantity *', 'number'],
                 ].map(([name, label, type]) => (
                   <div key={name} className={name === 'stockQuantity' ? 'sm:col-span-2' : ''}>
                     <label htmlFor={name} className="block text-sm font-medium app-label">
@@ -113,7 +113,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 ))}
                 <div>
                   <label htmlFor="category" className="block text-sm font-medium app-label">
-                    Category
+                    Category *
                   </label>
                   <Field
                     id="category"
