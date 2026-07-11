@@ -1,7 +1,8 @@
 # Inventory Management System
 
 A modern, responsive inventory management application built with React, TypeScript, and Tailwind CSS. Features separate desktop and mobile interfaces for optimal user experience across all devices.
-
+Netlify Hosted App -
+https://6a521bbbe369be0008c8f5bc--inventory-management-scaler.netlify.app/
 ## 🚀 Features
 
 ### Core Functionality
