@@ -73,7 +73,7 @@ https://6a521bbbe369be0008c8f5bc--inventory-management-scaler.netlify.app/
 
 4. **Open browser**
    ```
-   http://localhost:5173
+   http://localhost:5174
    ```
 
 ## 🏗️ Project Structure
