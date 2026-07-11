@@ -24,12 +24,22 @@ export const MobileStock: React.FC = () => {
       return;
     }
 
+    if (!qty || qty < 1) {
+      setStockError('Quantity must be at least 1');
+      return;
+    }
+
     if (!isRestock && qty > product.stockQuantity) {
-      setStockError('Cannot deduct more than current stock');
+      setStockError(`Cannot deduct ${qty} units. Only ${product.stockQuantity} units available.`);
       return;
     }
 
     const newQuantity = isRestock ? product.stockQuantity + qty : product.stockQuantity - qty;
+
+    if (newQuantity < 0) {
+      setStockError('Stock cannot go below 0. Please enter a valid quantity.');
+      return;
+    }
     const nextProducts = products.map((item) =>
       item.productId === product.productId ? { ...item, stockQuantity: newQuantity } : item,
     );

@@ -30,7 +30,7 @@ const productSchema = Yup.object({
   stockQuantity: Yup.number()
     .typeError('Stock quantity must be a number')
     .integer('Stock quantity must be a whole number')
-    .min(0, 'Stock quantity cannot be negative'),
+    .min(0, 'Initial stock quantity cannot be negative'),
 });
 
 interface ProductFormModalProps {
