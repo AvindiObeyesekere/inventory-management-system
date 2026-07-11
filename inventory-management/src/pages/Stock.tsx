@@ -67,13 +67,18 @@ export const Stock: React.FC = () => {
     }
 
     if (!isRestock && quantity > product.stockQuantity) {
-      setStockError('Deduct quantity cannot be greater than current stock.');
+      setStockError(`Cannot deduct ${quantity} units. Only ${product.stockQuantity} units available in stock.`);
       return;
     }
 
     const newQuantity = isRestock
       ? product.stockQuantity + quantity
       : product.stockQuantity - quantity;
+
+    if (newQuantity < 0) {
+      setStockError('Stock cannot go below 0. Please enter a valid quantity.');
+      return;
+    }
 
     const nextProducts = products.map((item) =>
       item.productId === product.productId ? { ...item, stockQuantity: newQuantity } : item,
