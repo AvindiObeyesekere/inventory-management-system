@@ -204,7 +204,7 @@ export const MobileProducts: React.FC = () => {
             </div>
             <form onSubmit={(e) => { e.preventDefault(); }} className="p-4 space-y-3">
               <div>
-                <label className="block text-xs font-medium app-label mb-1">Product Name</label>
+                <label className="block text-xs font-medium app-label mb-1">Product Name *</label>
                 <input
                   type="text"
                   defaultValue={editingProduct?.productName}
@@ -213,7 +213,7 @@ export const MobileProducts: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium app-label mb-1">Category</label>
+                <label className="block text-xs font-medium app-label mb-1">Category *</label>
                 <select className="app-field w-full" defaultValue={editingProduct?.category}>
                   <option value="">Select category</option>
                   {categories.map((cat) => (
@@ -223,7 +223,7 @@ export const MobileProducts: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium app-label mb-1">Price (Rs)</label>
+                  <label className="block text-xs font-medium app-label mb-1">Price (Rs) *</label>
                   <input
                     type="number"
                     defaultValue={editingProduct?.price}
@@ -242,7 +242,7 @@ export const MobileProducts: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium app-label mb-1">Metric Value</label>
+                <label className="block text-xs font-medium app-label mb-1">Metric Value *</label>
                 <input
                   type="text"
                   defaultValue={editingProduct?.metricValue}
