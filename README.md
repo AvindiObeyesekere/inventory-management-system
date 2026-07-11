@@ -253,6 +253,7 @@ This project is created for assessment purposes.
 <img width="1915" height="905" alt="image" src="https://github.com/user-attachments/assets/17b19dd4-673c-4c0f-b70c-98aca21d2cb0" />
 <img width="1916" height="907" alt="image" src="https://github.com/user-attachments/assets/7e0edfc8-3c8e-44a4-9011-3c093d2e67bf" />
 <img width="1918" height="907" alt="image" src="https://github.com/user-attachments/assets/437cf158-f712-4358-b599-fa5a22da6e27" />
+<img width="1918" height="911" alt="image" src="https://github.com/user-attachments/assets/f14175d7-6757-4a51-a2f7-3eff907f6876" />
 <img width="1916" height="906" alt="image" src="https://github.com/user-attachments/assets/39a0ed31-f0ac-4f8d-ba7b-02c05b7ab380" />
 <img width="1896" height="906" alt="image" src="https://github.com/user-attachments/assets/1d91f9eb-65a7-4333-9af7-efe188379e63" />
 <img width="1918" height="911" alt="image" src="https://github.com/user-attachments/assets/be687728-8343-488f-ba10-4421a16234a8" />
